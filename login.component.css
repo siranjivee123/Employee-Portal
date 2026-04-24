@@ -1,0 +1,153 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Background */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  padding: 20px;
+
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card */
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 14px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+
+  transition: all 0.3s ease;
+}
+
+/* Hover card */
+.login-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #1f2937;
+  transition: 0.3s ease;
+}
+
+.title:hover {
+  color: #4facfe;
+  letter-spacing: 1px;
+}
+
+/* Form fields */
+.full-width {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+/* Material field spacing fix */
+mat-form-field {
+  width: 100%;
+}
+
+/* Login button */
+.login-btn {
+  background: #64748b !important;
+  color: white !important;
+  font-weight: 600;
+  height: 45px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Button hover */
+.login-btn:hover {
+  background: #4facfe !important;
+  transform: scale(1.05);
+}
+
+/* Forgot password */
+.forgot-password {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.forgot-password a {
+  font-size: 13px;
+  color: #1f2937;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+  color: #4facfe;
+}
+
+/* Remove extra button styling inside input */
+mat-form-field button[mat-icon-button] {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+/* Hide browser password eye */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .login-card {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .login-card {
+    max-width: 60%;
+  }
+}
