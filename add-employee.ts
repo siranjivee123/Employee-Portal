@@ -130,7 +130,7 @@ export class AddEmployeeComponent implements OnInit {
       return;
     }
     const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-    employees.push({
+    employees.unshift({
       ...this.employeeForm.value,
       date: new Date().toISOString(),
       tasks: Math.floor(Math.random() * 100)
