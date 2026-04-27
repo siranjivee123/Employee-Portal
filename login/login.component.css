@@ -70,7 +70,7 @@
   margin-bottom: 18px;
 }
 
-/* Material field spacing fix */
+/* Material field spacing  */
 mat-form-field {
   width: 100%;
 }
@@ -109,7 +109,7 @@ mat-form-field {
   color: #4facfe;
 }
 
-/* Remove extra button styling inside input */
+/* Remove extra button */
 mat-form-field button[mat-icon-button] {
   border: none;
   background: transparent;
@@ -118,7 +118,7 @@ mat-form-field button[mat-icon-button] {
   min-width: 0;
 }
 
-/* Hide browser password eye */
+/* Hide browser password  */
 input::-ms-reveal,
 input::-ms-clear {
   display: none;
