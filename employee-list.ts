@@ -1,10 +1,9 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { Router, RouterModule } from '@angular/router';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -29,10 +28,12 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     'tasks',
     'email',
     'date',
-    'actions'   
+    'actions'
   ];
 
   employees: any[] = [];
+
+  // ✅ Correct datasource usage
   filteredEmployees = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -40,7 +41,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   searchText = '';
   selectedProject = '';
   selectedDate = '';
-  sortOption: string = '';
+  sortOption = '';
 
   constructor(private router: Router) {}
 
@@ -52,7 +53,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     this.filteredEmployees.paginator = this.paginator;
   }
 
-  // LOAD
+  // LOAD DATA
   loadEmployees() {
     const data = JSON.parse(localStorage.getItem('employees') || '[]');
     this.employees = data;
@@ -90,46 +91,68 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       return matchSearch && matchProject && matchDate;
     });
 
+    // (Optional sorting placeholder if you want later)
+    switch (this.sortOption) {
+      case 'name-asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+
+      case 'name-desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+    }
+
     this.filteredEmployees = new MatTableDataSource(result);
     this.filteredEmployees.paginator = this.paginator;
   }
 
-  //  VIEW EMPLOYEE
-  viewEmployee(emp: any) {
-    Swal.fire({
-      title: 'Employee Details',
-      html: `
-        <b>Name:</b> ${emp.name}<br>
-        <b>Email:</b> ${emp.email}<br>
-        <b>Projects:</b> ${(emp.projects || []).join(', ')}<br>
-        <b>Tasks:</b> ${emp.tasks}<br>
-        <b>Date:</b> ${emp.date}
-      `,
-      icon: 'info'
-    });
-  }
+  // VIEW
+ viewEmployee(emp: any) {
+  Swal.fire({
+    title: 'Employee Details',
+    html: `
+      <div style="text-align:left; font-size:14px;padding:10px; line-height:1.8">
 
-  //  EDIT EMPLOYEE
+        <table style="width:100%">
+          <tr><td><b>Name</b></td><td>: ${emp.name}</td></tr>
+          <tr><td><b>Email</b></td><td>: ${emp.email}</td></tr>
+          <tr> <td><b>Projects</b></td><td>: ${(emp.projects || []).join(', ')}</td></tr> 
+          <tr><td><b>Tasks</b></td><td>: ${emp.tasks}</td></tr>
+          <tr><td><b>Date</b></td><td>: ${new Date(emp.date).toLocaleDateString()}</td></tr>
+        </table>
+      </div>
+    `,
+    icon: 'info',
+    width: '450px'
+  });
+}
+  // EDIT
   editEmployee(emp: any) {
     this.router.navigate(['/add-employee'], {
       queryParams: { id: emp.id }
     });
   }
 
-  // DELETE EMPLOYEE :
+  // DELETE
   deleteEmployee(id: string) {
-    const updated = this.employees.filter(e => e.id !== id);
-    localStorage.setItem('employees', JSON.stringify(updated));
-
     Swal.fire({
-      icon: 'success',
-      title: 'Deleted',
-      text: 'Employee Removed successfully',
-      timer: 1200,
-      showConfirmButton: false
-    });
+      title: 'Are you sure?',
+      text: 'This Employee will be deleted!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      confirmButtonText: 'Yes, delete'
+    }).then(result => {
+      if (result.isConfirmed) {
 
-    this.loadEmployees();
+        const updated = this.employees.filter(e => e.id !== id);
+        localStorage.setItem('employees', JSON.stringify(updated));
+
+        this.loadEmployees();
+
+        Swal.fire('Deleted!', 'Employee removed successfully', 'success');
+      }
+    });
   }
 
   refresh() {
