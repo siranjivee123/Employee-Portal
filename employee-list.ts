@@ -33,7 +33,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
 
   employees: any[] = [];
 
-  // ✅ Correct datasource usage
+  //  datasource usage
   filteredEmployees = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -91,7 +91,6 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       return matchSearch && matchProject && matchDate;
     });
 
-    // (Optional sorting placeholder if you want later)
     switch (this.sortOption) {
       case 'name-asc':
         result.sort((a, b) => a.name.localeCompare(b.name));
