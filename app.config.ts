@@ -6,7 +6,7 @@ import { routes } from './app.routes';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ReactiveFormsModule } from '@angular/forms';
 
-// ✅ Angular Material
+// Angular Material
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
 
     importProvidersFrom(
       ReactiveFormsModule,
-      // ✅ ADD ALL MATERIAL MODULES HERE
+      //  ADD ALL MATERIAL MODULES HERE
       MatTableModule,
       MatInputModule,
       MatButtonModule,
