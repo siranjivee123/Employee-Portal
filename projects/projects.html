@@ -1,0 +1,119 @@
+<!-- Header -->
+<div class="header">
+</div>
+<!-- Top actions -->
+<div class="top-actions">
+  <button class="add-btn" routerLink="/add-project">
+    Add New Project
+  </button>
+
+  <div class="filters">
+
+ <!-- Search -->
+    <input
+      type="text"
+      placeholder="Search by project name"
+      [(ngModel)]="searchText"
+      (input)="applyFilter()"
+    />
+
+<!-- Date -->
+    <input
+      type="date"
+      [(ngModel)]="selectedDate"
+      (change)="applyFilter()"
+    />
+
+<!-- Category -->
+    <input
+      type="text"
+      placeholder="Search by category"
+      [(ngModel)]="selectedCategory"
+      (input)="applyFilter()"
+    />
+
+<!-- Sort -->
+    <select [(ngModel)]="sortOption" (change)="applyFilter()">
+      <option value="">Sort By Name / Category</option>
+      <option value="name-asc">Name (A - Z)</option>
+      <option value="name-desc">Name (Z - A)</option>
+      <option value="category-asc">Category (A - Z)</option>
+      <option value="category-desc">Category (Z - A)</option>
+    </select>
+
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+  <h3>Projects List</h3>
+
+  <table mat-table [dataSource]="filteredProjects" class="mat-elevation-z8">
+
+<!-- Name -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Project Name </th>
+      <td mat-cell *matCellDef="let p"> {{ p.name }} </td>
+    </ng-container>
+
+<!-- Description -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef> Description </th>
+      <td mat-cell *matCellDef="let p"> {{ p.description }} </td>
+    </ng-container>
+
+<!-- Category -->
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef> Category </th>
+      <td mat-cell *matCellDef="let p"> {{ p.category }} </td>
+    </ng-container>
+
+ <!-- Manager -->
+    <ng-container matColumnDef="manager">
+      <th mat-header-cell *matHeaderCellDef> Manager </th>
+      <td mat-cell *matCellDef="let p"> {{ p.manager }} </td>
+    </ng-container>
+
+<!-- Employees -->
+    <ng-container matColumnDef="employees">
+      <th mat-header-cell *matHeaderCellDef> Employees </th>
+      <td mat-cell *matCellDef="let p">
+        {{ p.employees?.join(', ') }}
+      </td>
+    </ng-container>
+
+<!-- Date -->
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td mat-cell *matCellDef="let p">
+
+        {{ p.date | date:'dd-MM-yyyy' }}
+      </td>
+    </ng-container>
+
+<!-- Actions -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let p">
+
+        <button (click)="viewProject(p)">View</button>
+        <button (click)="editProject(p)">Edit</button>
+        <button (click)="deleteProject(p.id)">Delete</button>
+
+      </td>
+    </ng-container>
+
+<!-- Rows -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+</div>
+<!-- Pagination -->
+  <mat-paginator
+    [pageSize]="10"
+
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    showFirstLastButtons>
+  </mat-paginator>
+
