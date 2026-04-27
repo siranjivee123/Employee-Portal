@@ -2,12 +2,16 @@
   max-width: 500px;
   margin: auto;
   padding: 25px;
-  background: #ffffff;
+  background: white;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 .h2 {
     text-align: center;
+    color: #1976d2;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 input, select {
@@ -42,7 +46,7 @@ input:focus, select:focus {
 
 button[type="submit"] {
   flex: 1;
-  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  background: linear-gradient(135deg, lightseagreen);
   color: white;
   border: none;
   padding: 10px;
@@ -54,8 +58,8 @@ button[type="submit"] {
 
 /*Hover effect*/
 button[type="submit"]:hover {
-  background: linear-gradient(135deg, #1565c0, #1e88e5);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, lightseagreen);
+  transform: translateY(-5px);
   box-shadow: 0 6px 15px rgba(25, 118, 210, 0.3);
 }
 
@@ -67,9 +71,9 @@ button[type="submit"]:active {
 /*Cancel button*/
 .cancel-btn {
   flex: 1;
-  background: #e0e0e0;
-  color: #333;
-  border: none;
+  background:brown;
+  color:white;
+   border: none;
   padding: 10px;
   border-radius: 8px;
   cursor: pointer;
@@ -79,7 +83,7 @@ button[type="submit"]:active {
 
 /* Cancel Hover */
 .cancel-btn:hover {
-  background: #d6d6d6;
+  background: brown;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
