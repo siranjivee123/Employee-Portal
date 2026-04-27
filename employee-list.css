@@ -2,7 +2,7 @@
 .dashboard-container {
   display: flex;
   height: 100vh;
-  background: #f5f7fb;
+  background: lightblue;
   color: #333;
   font-family: Arial, sans-serif;
 }
@@ -262,14 +262,13 @@ tbody tr:hover {
   gap: 8px;
 }
 
-/* Base button style */
+/* button style */
 .btn {
-  padding: 6px 12px;
+  margin-right: 5px;
+  padding: 5px 10px;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
   transition: 0.3s;
 }
 
@@ -301,4 +300,47 @@ tbody tr:hover {
 
 .btn.delete:hover {
   background: #d32f2f;
+}
+
+
+
+.mat-header-cell {
+  position:sticky;
+  top: 0;
+  z-index: 10;
+  background: #f5f5f5;
+}
+
+.full-table {
+  width: 100%;
+  min-width: 900px; 
+}
+
+mat-paginator {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+
+.table-wrapper {
+  max-height: 400px;   
+  overflow-y: auto;    
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+/* Sticky header */
+.mat-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f1f3f6;
+}
+
+/* Table full width */
+.full-table {
+  width: 100%;
+  min-width: 900px;
 }
