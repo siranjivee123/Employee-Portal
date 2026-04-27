@@ -1,26 +1,42 @@
-import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-
+import { EmployeeListComponent } from '../employee-list/employee-list';
+import { ProjectsComponent } from '../projects/projects';
 @Component({
   selector: 'app-dashboard',
-  standalone: true,   // ✅ IMPORTANT
-  imports: [CommonModule,RouterModule],  // ✅ Needed for routing
+  standalone: true,
+  imports: [CommonModule, RouterModule, EmployeeListComponent,ProjectsComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
   isSidebarOpen = false;
+  activeView: string = 'dashboard';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.activeView = params['view'] || 'dashboard';
+    });
+  }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
   closeSidebar() {
+    this.isSidebarOpen = false;
+  }
+
+  setView(view: string) {
+      this.router.navigate(['/dashboard'], { queryParams: { view } });
+
     this.isSidebarOpen = false;
   }
 
