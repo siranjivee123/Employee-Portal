@@ -255,3 +255,50 @@ tbody tr:hover {
     font-size: 13px;
   }
 }
+
+/* Action cell alignment */
+.action-cell {
+  display: flex;
+  gap: 8px;
+}
+
+/* Base button style */
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+/* VIEW button */
+.btn.view {
+  background: #2196f3;
+  color: white;
+}
+
+.btn.view:hover {
+  background: #1976d2;
+}
+
+/* EDIT button */
+.btn.edit {
+  background: #4caf50;
+  color: white;
+}
+
+.btn.edit:hover {
+  background: #388e3c;
+}
+
+/* DELETE button */
+.btn.delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn.delete:hover {
+  background: #d32f2f;
+}
