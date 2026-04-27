@@ -1,6 +1,5 @@
 <!-- Header -->
-<div class="header">
-</div>
+<div class="header"></div>
 <!-- Top actions-->
 <div class="top-actions">
   <button class="add-btn" routerLink="/add-employee">
@@ -38,7 +37,9 @@
 
 <!-- Table-->
 <div class="table-card">
+
   <h3>Employees List</h3>
+
   <table mat-table [dataSource]="filteredEmployees" class="mat-elevation-z8">
 
 <!-- ID -->  
@@ -100,8 +101,9 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  </div>
 <mat-paginator
+  [pageSize]="10"
   [pageSizeOptions]="[5, 10, 25, 50]"
   showFirstLastButtons>
 </mat-paginator>
-</div>
