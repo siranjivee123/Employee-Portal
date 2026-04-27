@@ -1,0 +1,64 @@
+<div class="login-container">
+  <mat-card class="login-card">
+
+    <h1 class="title">Employer Portal</h1>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <!-- Employee ID -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Employee ID</mat-label>
+        <input matInput formControlName="userId">
+
+        <mat-error *ngIf="loginForm.get('userId')?.hasError('required')">
+          Employee ID is required
+        </mat-error>
+
+        <mat-error *ngIf="loginForm.get('userId')?.hasError('minlength')">
+          Minimum 4 characters required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Password -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          formControlName="password"
+        >
+
+        <button mat-icon-button matSuffix type="button"
+          (click)="hidePassword = !hidePassword">
+
+          <mat-icon>
+            {{ hidePassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+
+        </button>
+
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
+
+        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+          Minimum 6 characters required
+        </mat-error>
+
+      </mat-form-field>
+
+      <!-- Login Button -->
+      <button mat-raised-button class="login-btn full-width" type="submit">
+        Login
+      </button>
+
+      <!-- Forgot Password -->
+      <div class="forgot-password">
+        <a href="#">Forgot Password?</a>
+      </div>
+
+    </form>
+
+  </mat-card>
+</div>

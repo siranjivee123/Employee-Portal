@@ -1,0 +1,96 @@
+<div class="form-container">
+  <h2>Add Employee</h2>
+
+  <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+
+    <input placeholder="Please Enter Name" formControlName="name">
+    <div class="error" *ngIf="employeeForm.get('name')?.touched && employeeForm.get('name')?.invalid">
+      Name is required
+    </div>
+
+    <input placeholder="Please Enter Email" formControlName="email">
+    <div class="error" *ngIf="employeeForm.get('email')?.invalid">
+      Please enter a valid email
+    </div>
+
+    <input placeholder="+1 (555) 000-0000" formControlName="phone">
+    <div class="error" *ngIf="employeeForm.get('phone')?.invalid">
+      Please Enter valid number
+    </div>
+
+    <input placeholder="Please Enter Address" formControlName="address">
+     <div class="error" *ngIf="employeeForm.get('address')?.touched && employeeForm.get('address')?.invalid">
+      Address is required
+    </div>
+<!-- state -->
+
+<select formControlName="state" (change)="onStateChange()">
+  <option value="">Select State</option>
+  <option *ngFor="let s of states" [value]="s.name">
+    {{ s.name }}
+  </option>
+</select>
+<div class="error"
+     *ngIf="employeeForm.get('state')?.touched && employeeForm.get('state')?.invalid">
+  Please select state
+</div>
+
+<!-- City-->
+<select formControlName="city">
+  <option value="">Select City</option>
+  <option *ngFor="let c of cities" [value]="c">
+    {{ c }}
+  </option>
+</select>
+<div class="error"
+     *ngIf="employeeForm.get('city')?.touched && employeeForm.get('city')?.invalid">
+  Please select city
+</div>
+    <input placeholder="Zip Code" formControlName="zip">
+     <div class="error" *ngIf="employeeForm.get('zip')?.touched && employeeForm.get('zip')?.invalid">
+      Please Enter zip code
+    </div>
+   <label>Role</label>
+<select formControlName="role">
+  <option value="">Select Role</option>
+  <option *ngFor="let r of roles" [value]="r">
+    {{ r }}
+  </option>
+</select>
+<div class="error"
+     *ngIf="employeeForm.get('role')?.touched && employeeForm.get('state')?.invalid">
+  Please select Role
+</div>
+<br>
+
+
+<mat-form-field appearance="outline" class="full-width">
+   <mat-label>Projects</mat-label>
+
+  <mat-select formControlName="projects" multiple>
+    <mat-option *ngFor="let p of projectsList" [value]="p">
+    {{ p }}
+    </mat-option>
+  </mat-select>
+  </mat-form-field>
+
+   <mat-form-field appearance="outline" class="full-width">
+  <mat-label>Project Managers</mat-label>
+  <mat-select formControlName="managers" multiple>
+    <mat-option *ngFor="let m of managersList" [value]="m">
+      {{ m }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<!--Save button -->
+<div class="btn-group">
+  <button type="submit">Save Employee</button>
+
+<!-- Cancel button -->
+  <button type="button" class="cancel-btn" (click)="goBack()">
+    Cancel
+  </button>
+</div>
+  </form>
+</div>
