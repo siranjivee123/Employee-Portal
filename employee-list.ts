@@ -86,11 +86,11 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
           ? new Date(emp.date).toISOString().split('T')[0] === this.selectedDate
           : true;
 
-      // ✅ IMPORTANT: RETURN CONDITION
+      // IMPORTANT: RETURN CONDITION
       return matchSearch && matchProject && matchDate;
     });
 
-    // 🔥 SORTING LOGIC
+    // SORTING LOGIC
     switch (this.sortOption) {
 
       case 'name-asc':
@@ -118,7 +118,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
         break;
     }
 
-    // 🔥 APPLY DATA + PAGINATION
+    // APPLY DATA + PAGINATION
     this.filteredEmployees = new MatTableDataSource(result);
     this.filteredEmployees.paginator = this.paginator;
   }
