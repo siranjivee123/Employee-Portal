@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-employee-list',
@@ -27,11 +28,11 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     'projects',
     'tasks',
     'email',
-    'date'
+    'date',
+    'actions'   
   ];
 
   employees: any[] = [];
-
   filteredEmployees = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -41,6 +42,8 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   selectedDate = '';
   sortOption: string = '';
 
+  constructor(private router: Router) {}
+
   ngOnInit() {
     this.loadEmployees();
   }
@@ -49,13 +52,14 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     this.filteredEmployees.paginator = this.paginator;
   }
 
+  // LOAD
   loadEmployees() {
     const data = JSON.parse(localStorage.getItem('employees') || '[]');
-
     this.employees = data;
     this.applyFilter();
   }
 
+  // FILTER + SORT
   applyFilter() {
 
     const keyword = this.searchText.trim().toLowerCase();
@@ -66,13 +70,11 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       const name = emp.name?.toLowerCase() || '';
       const email = emp.email?.toLowerCase() || '';
 
-      // SEARCH (name/email)
       const matchSearch =
         keyword === '' ||
         name.includes(keyword) ||
         email.includes(keyword);
 
-      // SEARCH (project)
       const matchProject =
         projectKey === ''
           ? true
@@ -80,47 +82,54 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
               p.toLowerCase().includes(projectKey)
             );
 
-      // DATE filter (FIXED)
       const matchDate =
         this.selectedDate
           ? new Date(emp.date).toISOString().split('T')[0] === this.selectedDate
           : true;
 
-      // IMPORTANT: RETURN CONDITION
       return matchSearch && matchProject && matchDate;
     });
 
-    // SORTING LOGIC
-    switch (this.sortOption) {
-
-      case 'name-asc':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-
-      case 'name-desc':
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-
-      case 'project-asc':
-        result.sort((a, b) => {
-          const aProjects = (a.projects || []).join(', ').toLowerCase();
-          const bProjects = (b.projects || []).join(', ').toLowerCase();
-          return aProjects.localeCompare(bProjects);
-        });
-        break;
-
-      case 'project-desc':
-        result.sort((a, b) => {
-          const aProjects = (a.projects || []).join(', ').toLowerCase();
-          const bProjects = (b.projects || []).join(', ').toLowerCase();
-          return bProjects.localeCompare(aProjects);
-        });
-        break;
-    }
-
-    // APPLY DATA + PAGINATION
     this.filteredEmployees = new MatTableDataSource(result);
     this.filteredEmployees.paginator = this.paginator;
+  }
+
+  //  VIEW EMPLOYEE
+  viewEmployee(emp: any) {
+    Swal.fire({
+      title: 'Employee Details',
+      html: `
+        <b>Name:</b> ${emp.name}<br>
+        <b>Email:</b> ${emp.email}<br>
+        <b>Projects:</b> ${(emp.projects || []).join(', ')}<br>
+        <b>Tasks:</b> ${emp.tasks}<br>
+        <b>Date:</b> ${emp.date}
+      `,
+      icon: 'info'
+    });
+  }
+
+  //  EDIT EMPLOYEE
+  editEmployee(emp: any) {
+    this.router.navigate(['/add-employee'], {
+      queryParams: { id: emp.id }
+    });
+  }
+
+  // DELETE EMPLOYEE :
+  deleteEmployee(id: string) {
+    const updated = this.employees.filter(e => e.id !== id);
+    localStorage.setItem('employees', JSON.stringify(updated));
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Deleted',
+      text: 'Employee Removed successfully',
+      timer: 1200,
+      showConfirmButton: false
+    });
+
+    this.loadEmployees();
   }
 
   refresh() {
