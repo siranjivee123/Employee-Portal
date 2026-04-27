@@ -14,11 +14,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule,          // ✅ FIX for *ngIf
-    ReactiveFormsModule,   // ✅ FIX for formGroup
+    CommonModule,          
+    ReactiveFormsModule,   
     RouterModule,
 
-    // ✅ Material
+    //  Material
     MatInputModule,
     MatButtonModule,
     MatCardModule,
@@ -26,7 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatFormFieldModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']   // ✅ IMPORTANT
+  styleUrls: ['./login.component.css']   
 
 })
 export class LoginComponent {
