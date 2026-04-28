@@ -26,7 +26,12 @@
            <span>Projects</span>
       </li>
 
-      <li (click)="setView('tasks')">Tasks</li>
+       <li (click)="setView('tasks')"
+    [class.active]="activeView === 'tasks'">
+  <span class="material-icons">assignment</span>
+  <span>Tasks</span>
+</li>
+
       <li (click)="setView('leave')">Leave Management</li>
     </ul>
   </div>
@@ -46,6 +51,7 @@
       <h2 *ngIf="activeView === 'dashboard'">Dashboard Overview</h2>
       <h2 *ngIf="activeView === 'employees'">Employee Management</h2>
       <h2 *ngIf="activeView === 'projects'">Project Management</h2>
+      <h2 *ngIf="activeView === 'tasks'">Task Management</h2>
 
       <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
@@ -105,6 +111,10 @@
 <!-- Projects view -->
 <div *ngIf="activeView === 'projects'">
   <app-projects></app-projects>
+</div>
+<!-- tasks view -->
+<div *ngIf="activeView === 'tasks'">
+  <app-task-list></app-task-list>
 </div>
 
   </div>
