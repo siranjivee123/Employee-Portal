@@ -1,12 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+
 import { EmployeeListComponent } from '../employee-list/employee-list';
 import { ProjectsComponent } from '../projects/projects';
+import { TaskListComponent } from '../tasks/task-list/task-list.component'; 
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, EmployeeListComponent,ProjectsComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    EmployeeListComponent,
+    ProjectsComponent,
+    TaskListComponent 
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -35,8 +44,7 @@ export class DashboardComponent implements OnInit {
   }
 
   setView(view: string) {
-      this.router.navigate(['/dashboard'], { queryParams: { view } });
-
+    this.router.navigate(['/dashboard'], { queryParams: { view } });
     this.isSidebarOpen = false;
   }
 
