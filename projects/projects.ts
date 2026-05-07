@@ -24,6 +24,7 @@ import Swal from 'sweetalert2';
 export class ProjectsComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = [
+    'sno',
     'name',
     'description',
     'category',
@@ -35,7 +36,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
   projects: any[] = [];
 
-  filteredProjects = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -44,6 +45,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   selectedDate = '';
   sortOption: string = '';
 
+   // POPUP VARIABLES
+  showPopup = false;
+  selectedProject: any = null;
+
   constructor(private router: Router) {}
 
   ngOnInit() {
@@ -51,10 +56,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.filteredProjects.paginator = this.paginator;
+    this.dataSource.paginator = this.paginator;
   }
 
-  // LOAD DATA:
+// LOAD DATA:
   loadProjects() {
     const data = JSON.parse(localStorage.getItem('projects') || '[]');
 
@@ -62,7 +67,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.applyFilter();
   }
 
-  //  FILTER & SORT
+ //  FILTER & SORT
   applyFilter() {
 
     const keyword = this.searchText.trim().toLowerCase();
@@ -74,18 +79,18 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       const desc = p.description?.toLowerCase() || '';
       const category = p.category?.toLowerCase() || '';
 
-  // SEARCH (name/description)
+ // SEARCH FIlter:
       const matchSearch =
         keyword === '' ||
         name.includes(keyword) ||
         desc.includes(keyword);
 
-  // CATEGORY filter
+// CATEGORY filter
       const matchCategory =
         categoryKey === '' ||
         category.includes(categoryKey);
 
-  // DATE filter
+// DATE filter
       const matchDate =
         this.selectedDate
           ? new Date(p.date).toISOString().split('T')[0] === this.selectedDate
@@ -94,7 +99,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       return matchSearch && matchCategory && matchDate;
     });
 
-   // SORTING
+  // SORTING
     switch (this.sortOption) {
 
       case 'name-asc':
@@ -115,32 +120,21 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
   // APPLY DATA + PAGINATION
-    this.filteredProjects = new MatTableDataSource(result);
-    this.filteredProjects.paginator = this.paginator;
+    this.dataSource = new MatTableDataSource(result);
+    this.dataSource.paginator = this.paginator;
   }
 
   //  VIEW
-  viewProject(p: any) {
-  Swal.fire({
-    title: 'Project Details',
-    html: `
-      <div style="text-align:left; font-size:14px; line-height:1.8">
-        <table style="width:100%; border-collapse:collapse">
+   viewProject(p: any) {
+    this.selectedProject = p;
+    this.showPopup = true;
+  }
 
-          <tr><td><b>Name</b></td><td>: ${p.name}</td></tr>
-          <tr><td><b>Description</b></td><td>: ${p.description}</td></tr>
-          <tr><td><b>Category</b></td><td>: ${p.category}</td></tr> 
-          <tr><td><b>Manager</b></td><td>: ${Array.isArray(p.manager) ? p.manager.join(', ') : p.manager}</td></tr>
-          <tr><td><b>Employees</b></td> <td>: ${(p.employees || []).join(', ')}</td></tr>
-          <tr><td><b>Date</b></td><td>: ${new Date(p.date).toLocaleDateString()}</td> </tr>
-        </table>
-      </div>
-    `,
-    icon: 'info',
-    width: '450px',
-    confirmButtonText: 'Close'
-  });
-}
+  // CLOSE POPUP
+  closePopup() {
+    this.showPopup = false;
+  }
+
   // EDIT
   editProject(p: any) {
     this.router.navigate(['/add-project'], 
