@@ -187,13 +187,15 @@ th {
   padding: 12px;
   text-align: left;
   font-weight: 600;
-  color: #555;
+  color: grey;
 }
 
 /* Data row */
 td {
   padding: 12px;
   border-top: 1px solid #eee;
+  font-weight: 500;
+  color: black;
 }
 
 /* Hover */
@@ -230,7 +232,8 @@ mat-paginator {
   margin-top: 15px;
   color: #2c3e50;
   font-weight: 600;
-  font-size: medium;
+  font-size: 15px;
+  
 }
 
 /*RESPONSIVE  */
@@ -330,4 +333,64 @@ mat-paginator {
 .mat-row td {
   font-weight: 500;
   color: grey;
+}
+
+/* POPUP */
+.popup {
+  position:fixed;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 1000;
+  animation: slideIn 0.5s ease;
+}
+
+.popup-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  background:  #1976d2;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+}
+.popup-header span {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+}
+
+.close-btn {
+  position: absolute;
+  right: 10px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 70%;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.popup-body {
+  padding: 16px;
+  font-size: 16px;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
