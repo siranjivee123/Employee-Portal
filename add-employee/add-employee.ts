@@ -50,7 +50,13 @@ export class AddEmployeeComponent implements OnInit {
 
   isLoadingCities = false;
   cityError = '';
-  employeeId = '';
+
+  selectedFile: File | null = null;
+  imagePreview: any;
+  savedEmployee: any;   
+  employeeId: string | null = null;
+
+  isSubmitting = false;
 
   constructor(
     private fb: FormBuilder,
@@ -61,7 +67,7 @@ export class AddEmployeeComponent implements OnInit {
 
   ngOnInit() {
 
-// STEP 1 FORM
+    // STEP 1 FORM
     this.basicForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -72,7 +78,7 @@ export class AddEmployeeComponent implements OnInit {
       zip: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
     });
 
-// STEP 2 FORM
+    // STEP 2 FORM
     this.techForm = this.fb.group({
       role: ['', Validators.required],
       shift: ['', Validators.required],
@@ -80,7 +86,7 @@ export class AddEmployeeComponent implements OnInit {
       managers: [[], Validators.required],
     });
 
-// LOAD STATES
+    // LOAD STATES
     this.http.get<any>('https://countriesnow.space/api/v0.1/countries/states')
       .subscribe(res => {
         const india = res.data.find((c: any) => c.name === 'India');
@@ -88,18 +94,31 @@ export class AddEmployeeComponent implements OnInit {
       });
   }
 
-// NEXT STEP VALIDATION
-  goNext(stepper: any) {
+  //  FILE UPLOAD 
+  onFileChange(event: any) {
+    const file = event.target.files[0];
 
+    if (file) {
+      this.selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // NEXT STEP
+  goNext(stepper: any) {
     if (this.basicForm.invalid) {
       this.basicForm.markAllAsTouched();
       return;
     }
-
     stepper.next();
   }
 
-// STATE to  CITY
+  // STATE → CITY
   onStateChange() {
 
     const selectedState = this.basicForm.get('state')?.value;
@@ -129,42 +148,67 @@ export class AddEmployeeComponent implements OnInit {
     });
   }
 
-// SUBMIT
+  // SUBMIT 
   onSubmit() {
 
-    if (this.techForm.invalid) {
-      this.techForm.markAllAsTouched();
-      return;
+console.log("SUBMIT CLICKED");
+
+  if (this.techForm.invalid) {
+    this.techForm.markAllAsTouched();
+    return;
+  }
+
+  this.isSubmitting = true;
+
+  const formData = new FormData();
+
+  const data = {
+    ...this.basicForm.value,
+    ...this.techForm.value
+  };
+
+  // append normal fields
+  Object.keys(data).forEach(key => {
+    const value = data[key];
+
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
     }
+  });
 
-    const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+  // image
+  if (this.selectedFile) {
+    formData.append('profileImage', this.selectedFile);
+  }
+  console.log("FORM DATA:", data);
+console.log("FILE:", this.selectedFile);
 
-    this.employeeId = this.generateId();
+  this.http.post('http://localhost:5000/api/employee/add', formData)
+    .subscribe({
+      next: (res: any) => {
+        this.isSubmitting = false;
 
-    employees.unshift({
-      id: this.employeeId,
-      ...this.basicForm.value,
-      ...this.techForm.value,
-      date: new Date().toISOString(),
-      tasks: Math.floor(Math.random() * 100)
+        console.log("SUCCESS:", res); // 🔥 IMPORTANT DEBUG
+
+        this.employeeId = res.employee?._id || res.data?._id;
+        this.savedEmployee = res.employee || res.data;
+
+        this.openSuccessDialog();
+      },
+      error: (err) => {
+  this.isSubmitting = false;
+  console.error("Backend Error:", err);
+
+  // Show proper backend message
+  const message = err?.error?.message || "Error saving employee";
+  alert(message);
+}
     });
 
-    localStorage.setItem('employees', JSON.stringify(employees));
-
-    this.openSuccessDialog();
   }
-
-// GENERATE ID
-  generateId(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let id = '';
-    for (let i = 0; i < 8; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  }
-
-// POPUP
+  // SUCCESS POPUP
   openSuccessDialog() {
 
     const dialogRef = this.dialog.open(EmployeeSuccessDialogComponent, {
@@ -177,16 +221,12 @@ export class AddEmployeeComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'navigate') {
-        this.router.navigate(['/dashboard'], {
-          queryParams: { view: 'employees' }
-        });
+        this.router.navigate(['/dashboard/employees']);
       }
     });
   }
 
   goToList() {
-    this.router.navigate(['/dashboard'], {
-      queryParams: { view: 'employees' }
-    });
+    this.router.navigate(['/dashboard/employees']);
   }
 }
