@@ -2,7 +2,7 @@
 <div class="header"></div>
 <!-- Top actions-->
 <div class="top-actions">
-  <button class="add-btn" routerLink="/add-employee">
+ <button class="add-btn" routerLink="/add-employee">
     Add New Employee
   </button>
   <div class="filters">
@@ -10,20 +10,17 @@
       type="text"
       placeholder="Search by email"
       [(ngModel)]="searchText"
-      (input)="applyFilter()"
-    />
+      (input)="applyFilter()"/>
     <input
       type="date"
       [(ngModel)]="selectedDate"
-      (change)="applyFilter()"
-    />
+      (change)="applyFilter()"/>
   
 <input
   type="text"
   placeholder="Search by project name"
   [(ngModel)]="selectedProject"
-  (input)="applyFilter()"
-/>
+  (input)="applyFilter()"/>
  <!-- Sort Dropdown -->
 <select [(ngModel)]="sortOption" (change)="applyFilter()">
     <option value="">Sort By Project / Name </option>
@@ -39,8 +36,15 @@
 <div class="table-card">
 
   <h3>Employees List</h3>
-
-  <table mat-table [dataSource]="filteredEmployees" class="mat-elevation-z8">
+ <div class="table-wrapper">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<!-- SNO -->
+  <ng-container matColumnDef="sno">
+  <th mat-header-cell *matHeaderCellDef> S.No </th>
+  <td mat-cell *matCellDef="let emp; let i = index">
+    {{ i + 1 }}
+  </td>
+</ng-container>
 
 <!-- ID -->  
    <ng-container matColumnDef="id">
@@ -77,7 +81,9 @@
 <!-- Date -->    
  <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef> Date </th>
-      <td mat-cell *matCellDef="let emp"> {{ emp.date | date:'medium' }} </td>
+      <td mat-cell *matCellDef="let emp">
+    {{ emp.date | date:'dd/MM/yyyy, hh:mm:ss a ' }}
+         </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -102,8 +108,36 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
   </div>
+  </div>
 <mat-paginator
   [pageSize]="10"
   [pageSizeOptions]="[5, 10, 25, 50]"
   showFirstLastButtons>
 </mat-paginator>
+
+<!-- EMPLOYEE POPUP -->
+<div class="popup" *ngIf="showPopup">
+
+<!-- HEADER -->
+  <div class="popup-header">
+    <span>Employee Details</span>
+    <button class="close-btn" (click)="closePopup()">X</button>
+  </div>
+
+<!-- BODY -->
+  <div class="popup-body">
+    <p><b>Name:</b> {{ selectedEmployee?.name }}</p>
+    <p><b>Email:</b> {{ selectedEmployee?.email }}</p>
+
+    <p><b>Projects:</b>
+      {{ selectedEmployee?.projects?.join(', ') }}
+    </p>
+
+    <p><b>Tasks:</b> {{ selectedEmployee?.tasks }}</p>
+
+    <p><b>Date:</b>
+      {{ selectedEmployee?.date | date:'dd/MM/yyyy, hh:mm:ss a' }}
+    </p>
+  </div>
+
+</div>
