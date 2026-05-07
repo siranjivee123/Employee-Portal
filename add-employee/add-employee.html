@@ -5,11 +5,11 @@
 
     <mat-horizontal-stepper linear #stepper>
 
-<!-- STEP 1-->
+      <!-- ================= STEP 1 ================= -->
       <mat-step [stepControl]="basicForm">
         <form [formGroup]="basicForm">
 
-<!-- NAME -->
+          <!-- NAME -->
           <div class="field">
             <input placeholder="Enter Name" formControlName="name">
             <div class="error" *ngIf="basicForm.get('name')?.invalid">
@@ -17,7 +17,7 @@
             </div>
           </div>
 
-<!-- EMAIL -->
+          <!-- EMAIL -->
           <div class="field">
             <input placeholder="Enter Email" formControlName="email">
             <div class="error" *ngIf="basicForm.get('email')?.invalid">
@@ -25,7 +25,7 @@
             </div>
           </div>
 
-<!-- PHONE -->
+          <!-- PHONE -->
           <div class="field">
             <input placeholder="Enter Phone" formControlName="phone">
             <div class="error" *ngIf="basicForm.get('phone')?.invalid">
@@ -33,7 +33,7 @@
             </div>
           </div>
 
-<!-- ADDRESS -->
+          <!-- ADDRESS -->
           <div class="field">
             <input placeholder="Enter Address" formControlName="address">
             <div class="error" *ngIf="basicForm.get('address')?.invalid">
@@ -41,7 +41,7 @@
             </div>
           </div>
 
- <!-- STATE -->
+          <!-- STATE -->
           <div class="field">
             <select formControlName="state" (change)="onStateChange()">
               <option value="">Select State</option>
@@ -54,7 +54,7 @@
             </div>
           </div>
 
-<!-- CITY -->
+          <!-- CITY -->
           <div class="field">
             <select formControlName="city">
               <option value="">Select City</option>
@@ -67,34 +67,72 @@
             </div>
           </div>
 
-<!-- ZIP -->
+          <!-- ZIP -->
           <div class="field">
             <input placeholder="Enter Zip Code" formControlName="zip">
             <div class="error" *ngIf="basicForm.get('zip')?.invalid">
               Please enter zip code
             </div>
           </div>
-          
-<div style="margin-top: 10px;">
-  <label>Upload Profile Image</label>
-  <input type="file" (change)="onFileChange($event)">
+<!-- PROFILE IMAGE UPLOAD -->
+<div class="field">
+
+  <label class="label">Profile Image</label>
+
+  <div class="upload-box">
+
+    <!-- Hidden file input -->
+    <input
+      type="file"
+      accept="image/*"
+      (change)="onFileChange($event)"
+      hidden
+      #fileInput
+    >
+
+    <!-- Upload button -->
+    <button mat-stroked-button type="button" (click)="fileInput.click()">
+      Choose Image
+    </button>
+
+    <!-- File name display -->
+    <div *ngIf="selectedFile" style="margin-top:5px;">
+      Selected: {{ selectedFile.name }}
+    </div>
+
+  </div>
+
+  <!-- Image Preview -->
+  <div *ngIf="imagePreview" style="margin-top:10px;">
+    <img
+      [src]="imagePreview"
+      alt="Preview"
+      style="
+        width:120px;
+        height:120px;
+        object-fit:cover;
+        border-radius:10px;
+        border:1px solid #ccc;
+      "
+    >
+  </div>
+
 </div>
-<!-- NEXT -->
+          <!-- NEXT -->
           <div class="btn-group">
-            <button mat-raised-button 
+            <button mat-raised-button color="primary"
               (click)="goNext(stepper)">
               Next
             </button>
           </div>
-
         </form>
       </mat-step>
 
-<!-- STEP 2  -->
+      <!-- ================= STEP 2 ================= -->
       <mat-step [stepControl]="techForm">
         <form [formGroup]="techForm">
 
-<!-- ROLE -->
+          <!-- ROLE -->
           <div class="field">
             <select formControlName="role">
               <option value="">Select Role</option>
@@ -107,7 +145,7 @@
             </div>
           </div>
 
-<!-- SHIFT -->
+          <!-- SHIFT -->
           <div class="field">
             <select formControlName="shift">
               <option value="">Select Shift</option>
@@ -119,10 +157,11 @@
             </div>
           </div>
 
-<!-- PROJECTS -->
+          <!-- PROJECTS -->
           <div class="field">
-            <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Projects</mat-label>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Projects</mat-label>
 
     <mat-select formControlName="projects" multiple>
 
@@ -138,12 +177,12 @@
 
   </mat-form-field>
 
-</div>  
+</div>
 
+          <!-- MANAGERS -->
+  <div class="field">
 
-<!-- MANAGERS -->
-          <div class="field">
-             <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Managers</mat-label>
 
     <mat-select formControlName="managers" multiple>
@@ -162,7 +201,7 @@
 
 </div>
 
- <!-- BUTTONS -->
+          <!-- BUTTONS -->
           <div class="btn-group">
             <button mat-button matStepperPrevious>Back</button>
 
