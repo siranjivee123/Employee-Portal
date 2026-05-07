@@ -33,7 +33,7 @@
           <mat-option value="PM">Project 2</mat-option>
 
           <mat-option *ngFor="let p of projectList" [value]="p">
-            {{ p }}
+            {{ p}}
           </mat-option>
 
         </mat-select>
@@ -80,15 +80,7 @@
         </mat-error>
       </mat-form-field>
 
-      <!-- Date -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Date</mat-label>
-        <input matInput type="date" formControlName="date">
-
-        <mat-error *ngIf="taskForm.get('date')?.touched && taskForm.get('date')?.invalid">
-          Please select date
-        </mat-error>
-      </mat-form-field>
+      
 
   <!-- Buttons -->
       <div class="actions">
