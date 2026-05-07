@@ -48,7 +48,7 @@ export class AddProjectComponent implements OnInit {
       manager: [[], Validators.required],
       employees: [[], Validators.required],
       status: ['', Validators.required],
-      date: ['', Validators.required]
+      
     });
 
     // Check edit mode
@@ -72,24 +72,30 @@ export class AddProjectComponent implements OnInit {
     let projects = JSON.parse(localStorage.getItem('projects') || '[]');
 
     if (this.editId) {
-  // Update project
+// Update project
       projects = projects.map((p: any) =>
         p.id === this.editId
-          ? { ...this.projectForm.value, id: this.editId }
+          ? { 
+            ...p,
+            ...this.projectForm.value,
+             date: p.date || new Date().toISOString()
+          }
           : p
       );
     } else {
-  // Add new project
+// Add new project
       const newProject = {
         ...this.projectForm.value,
-        id: Math.random().toString(36).substring(2, 10)
+        id: Math.random().toString(36).substring(2, 10),
+        date: new Date().toISOString()
+
       };
       projects.unshift(newProject);
     }
 
     localStorage.setItem('projects', JSON.stringify(projects));
 
-    // Success popup
+ // Success popup
     Swal.fire({
          icon: 'success',
          title: 'Projects Added!',
@@ -102,7 +108,7 @@ export class AddProjectComponent implements OnInit {
          });
        });
      }
-     // BACK:
+  // BACK:
      goBack() {
        this.router.navigate(['/dashboard'], {
          queryParams: { view: 'projects' }
