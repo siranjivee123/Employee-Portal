@@ -5,6 +5,7 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { Router, RouterModule } from '@angular/router';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-employee-list',
@@ -21,7 +22,9 @@ import Swal from 'sweetalert2';
 })
 export class EmployeeListComponent implements OnInit, AfterViewInit {
 
+  // ---------------- TABLE COLUMNS ----------------
   displayedColumns: string[] = [
+    'sno',
     'id',
     'name',
     'projects',
@@ -32,35 +35,64 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   ];
 
   employees: any[] = [];
-
-  //  datasource usage:
-  filteredEmployees = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  // ---------------- FILTERS ----------------
   searchText = '';
   selectedProject = '';
   selectedDate = '';
   sortOption = '';
 
-  constructor(private router: Router) {}
+  // ---------------- ROLE ----------------
+  role: string = '';
 
+  // ---------------- POPUP ----------------
+  showPopup = false;
+  selectedEmployee: any = null;
+
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {
+    this.getRoleFromToken();
+  }
+
+  // ================= INIT =================
   ngOnInit() {
     this.loadEmployees();
   }
 
   ngAfterViewInit() {
-    this.filteredEmployees.paginator = this.paginator;
+    this.dataSource.paginator = this.paginator;
   }
 
-  // LOAD DATA
+  // ================= ROLE =================
+  getRoleFromToken() {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.role = payload.role;
+    }
+  }
+
+  // ================= LOAD DATA =================
   loadEmployees() {
-    const data = JSON.parse(localStorage.getItem('employees') || '[]');
-    this.employees = data;
-    this.applyFilter();
+    this.http.get<any[]>('http://localhost:5000/api/employees')
+      .subscribe({
+        next: (res) => {
+          this.employees = res;
+          this.dataSource.data = res;
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
   }
 
-  // FILTER + SORT
+  // ================= FILTER + SORT =================
   applyFilter() {
 
     const keyword = this.searchText.trim().toLowerCase();
@@ -72,26 +104,24 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       const email = emp.email?.toLowerCase() || '';
 
       const matchSearch =
-        keyword === '' ||
+        !keyword ||
         name.includes(keyword) ||
         email.includes(keyword);
 
       const matchProject =
-        projectKey === ''
-          ? true
-          : (emp.projects || []).some((p: string) =>
-              p.toLowerCase().includes(projectKey)
-            );
+        !projectKey ||
+        (emp.projects || []).some((p: string) =>
+          p.toLowerCase().includes(projectKey)
+        );
 
       const matchDate =
-        this.selectedDate
-          ? new Date(emp.date).toISOString().split('T')[0] === this.selectedDate
-          : true;
+        !this.selectedDate ||
+        new Date(emp.date).toISOString().split('T')[0] === this.selectedDate;
 
       return matchSearch && matchProject && matchDate;
     });
 
-    // Sorting :
+    // SORTING
     switch (this.sortOption) {
       case 'name-asc':
         result.sort((a, b) => a.name.localeCompare(b.name));
@@ -100,41 +130,51 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       case 'name-desc':
         result.sort((a, b) => b.name.localeCompare(a.name));
         break;
+
+      case 'project-asc':
+        result.sort((a, b) =>
+          (a.projects?.[0] || '').localeCompare(b.projects?.[0] || '')
+        );
+        break;
+
+      case 'project-desc':
+        result.sort((a, b) =>
+          (b.projects?.[0] || '').localeCompare(a.projects?.[0] || '')
+        );
+        break;
     }
 
-    this.filteredEmployees = new MatTableDataSource(result);
-    this.filteredEmployees.paginator = this.paginator;
+    this.dataSource.data = result;
+
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 
-  // VIEW
- viewEmployee(emp: any) {
-  Swal.fire({
-    title: 'Employee Details',
-    html: `
-      <div style="text-align:left; font-size:14px;padding:10px; line-height:1.8">
+  // ================= VIEW =================
+  viewEmployee(emp: any) {
+    this.selectedEmployee = emp;
+    this.showPopup = true;
+  }
 
-        <table style="width:100%">
-          <tr><td><b>Name</b></td><td>: ${emp.name}</td></tr>
-          <tr><td><b>Email</b></td><td>: ${emp.email}</td></tr>
-          <tr> <td><b>Projects</b></td><td>: ${(emp.projects || []).join(', ')}</td></tr> 
-          <tr><td><b>Tasks</b></td><td>: ${emp.tasks}</td></tr>
-          <tr><td><b>Date</b></td><td>: ${new Date(emp.date).toLocaleDateString()}</td></tr>
-        </table>
-      </div>
-    `,
-    icon: 'info',
-    width: '450px'
-  });
-}
-  // EDIT
+  closePopup() {
+    this.showPopup = false;
+  }
+
+  // ================= EDIT (ADMIN ONLY) =================
   editEmployee(emp: any) {
+    if (this.role !== 'admin') return;
+
     this.router.navigate(['/add-employee'], {
       queryParams: { id: emp.id }
     });
   }
 
-  // DELETE
+  // ================= DELETE (ADMIN ONLY) =================
   deleteEmployee(id: string) {
+
+    if (this.role !== 'admin') return;
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'This Employee will be deleted!',
@@ -143,18 +183,25 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       confirmButtonColor: '#f44336',
       confirmButtonText: 'Yes, delete'
     }).then(result => {
+
       if (result.isConfirmed) {
 
-        const updated = this.employees.filter(e => e.id !== id);
-        localStorage.setItem('employees', JSON.stringify(updated));
+        this.http.delete(`http://localhost:5000/api/employees/${id}`)
+          .subscribe(() => {
 
-        this.loadEmployees();
+            this.loadEmployees();
 
-        Swal.fire('Deleted!', 'Employee removed successfully', 'success');
+            Swal.fire(
+              'Deleted!',
+              'Employee removed successfully',
+              'success'
+            );
+          });
       }
     });
   }
 
+  // ================= REFRESH =================
   refresh() {
     this.loadEmployees();
   }
