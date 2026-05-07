@@ -14,23 +14,20 @@
       type="text"
       placeholder="Search by project name"
       [(ngModel)]="searchText"
-      (input)="applyFilter()"
-    />
+      (input)="applyFilter()"/>
 
 <!-- Date -->
     <input
       type="date"
       [(ngModel)]="selectedDate"
-      (change)="applyFilter()"
-    />
+      (change)="applyFilter()"/>
 
 <!-- Category -->
     <input
       type="text"
       placeholder="Search by category"
       [(ngModel)]="selectedCategory"
-      (input)="applyFilter()"
-    />
+      (input)="applyFilter()"/>
 
 <!-- Sort -->
     <select [(ngModel)]="sortOption" (change)="applyFilter()">
@@ -48,7 +45,14 @@
 <div class="table-card">
   <h3>Projects List</h3>
 
-  <table mat-table [dataSource]="filteredProjects" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<!-- SNO -->
+  <ng-container matColumnDef="sno">
+  <th mat-header-cell *matHeaderCellDef> S.No </th>
+  <td mat-cell *matCellDef="let p; let i = index">
+    {{ i + 1 }}
+  </td>
+</ng-container>
 
 <!-- Name -->
     <ng-container matColumnDef="name">
@@ -84,10 +88,10 @@
 
 <!-- Date -->
     <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef> Date </th>
+      <th mat-header-cell *matHeaderCellDef> Date & Time </th>
         <td mat-cell *matCellDef="let p">
 
-        {{ p.date | date:'dd-MM-yyyy' }}
+    {{ p.date | date:'dd/MM/yyyy, hh:mm:ss a ' }}
       </td>
     </ng-container>
 
@@ -106,14 +110,44 @@
 <!-- Rows -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
+<tr class="mat-row" *matNoDataRow>
+  <td class="mat-cell" colspan="8" style="text-align:center; padding:20px;">
+    No Projects Found!
+  </td>
+</tr>
   </table>
 </div>
 <!-- Pagination -->
   <mat-paginator
     [pageSize]="10"
-
     [pageSizeOptions]="[5, 10, 25, 50]"
     showFirstLastButtons>
   </mat-paginator>
+
+
+ <!--  POPUP -->
+<div class="popup" *ngIf="showPopup">
+
+<!-- HEADER -->
+  <div class="popup-header">
+    <span>Project Details</span>
+
+ <!--  CLOSE BUTTON -->
+    <button class="close-btn" (click)="closePopup()">X</button>
+  </div>
+
+<!-- BODY -->
+  <div class="popup-body">
+    <p><b>Name:</b> {{ selectedProject?.name }}</p>
+    <p><b>Description:</b> {{ selectedProject?.description }}</p>
+    <p><b>Category:</b> {{ selectedProject?.category }}</p>
+    <p><b>Manager:</b> {{ selectedProject?.manager }}</p>
+    <p><b>Employees:</b> {{ selectedProject?.employees?.join(', ') }}</p>
+
+    <p><b>Date:</b>
+      {{ selectedProject?.date | date:'dd/MM/yyyy, hh:mm:ss a' }}
+    </p>
+  </div>
+
+</div>
 
