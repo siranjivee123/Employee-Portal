@@ -26,6 +26,7 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   constructor(private router: Router) {}
 
   displayedColumns: string[] = [
+    'sno',
     'ticket',
     'description',
     'project',
@@ -44,6 +45,10 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   selectedProject = '';
   sortOption = '';
 
+  // POPUP
+  showPopup = false;
+  selectedTask: any = null;
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit() {
@@ -54,34 +59,54 @@ export class TaskListComponent implements OnInit, AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
-  // Load data
+  //  SORT FUNCTION 
+  sortTasksByLatest() {
+    this.tasks.sort((a: any, b: any) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }
+
+  // LOAD DATA
   loadTasks() {
     const data = localStorage.getItem('tasks');
     this.tasks = data ? JSON.parse(data) : [];
-    this.tasks = this.tasks.reverse();
+
+    this.sortTasksByLatest(); 
+
     this.dataSource.data = this.tasks;
   }
 
-  // Filter + Sort
+  // FILTER + SORT
   applyFilter() {
     let data = [...this.tasks];
 
+    // SEARCH
     if (this.searchText) {
       data = data.filter(t =>
         t.ticket.toLowerCase().includes(this.searchText.toLowerCase())
       );
     }
 
+    // DATE FILTER
     if (this.selectedDate) {
-      data = data.filter(t => t.date === this.selectedDate);
+      data = data.filter(t =>
+        new Date(t.date).toISOString().split('T')[0] === this.selectedDate
+      );
     }
 
+    // PROJECT FILTER
     if (this.selectedProject) {
       data = data.filter(t =>
         t.project.toLowerCase().includes(this.selectedProject.toLowerCase())
       );
     }
 
+    // DEFAULT SORT (LATEST FIRST)
+    data.sort((a: any, b: any) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // OPTIONAL CUSTOM SORT
     switch (this.sortOption) {
       case 'ticket-asc':
         data.sort((a, b) => a.ticket.localeCompare(b.ticket));
@@ -100,37 +125,25 @@ export class TaskListComponent implements OnInit, AfterViewInit {
     this.dataSource.data = data;
   }
 
-  // View
+  // VIEW
   viewTask(t: any) {
-    Swal.fire({
-      title: 'Task Details',
-      html: `
-        <div style="text-align:left; font-size:14px; line-height:1.8">
-          <table style="width:100%">
-            <tr><td><b>Ticket</b></td><td>: ${t.ticket}</td></tr>
-            <tr><td><b>Description</b></td><td>: ${t.description}</td></tr>
-            <tr><td><b>Project</b></td><td>: ${t.project}</td></tr>
-            <tr><td><b>Shift</b></td><td>: ${t.shift}</td></tr>
-            <tr><td><b>Assigned By</b></td><td>: ${t.assignedBy}</td></tr>
-            <tr><td><b>Effort</b></td><td>: ${t.effort} hrs</td></tr>
-            <tr><td><b>Date</b></td><td>: ${new Date(t.date).toLocaleDateString()}</td></tr>
-          </table>
-        </div>
-      `,
-      icon: 'info',
-      width: '450px',
-      confirmButtonText: 'Close'
-    });
+    this.selectedTask = t;
+    this.showPopup = true;
   }
 
-  //  Edit
+  // CLOSE POPUP
+  closePopup() {
+    this.showPopup = false;
+  }
+
+  // 
   editTask(t: any) {
     this.router.navigate(['/add-task'], {
       queryParams: { id: t.id }
     });
   }
 
-  // Delete 
+  // DELETE
   deleteTask(id: number) {
     Swal.fire({
       title: 'Are you sure?',
@@ -144,8 +157,10 @@ export class TaskListComponent implements OnInit, AfterViewInit {
       if (result.isConfirmed) {
 
         this.tasks = this.tasks.filter(t => t.id !== id);
-        localStorage.setItem('tasks', JSON.stringify(this.tasks));
 
+        this.sortTasksByLatest(); 
+
+        localStorage.setItem('tasks', JSON.stringify(this.tasks));
         this.dataSource.data = this.tasks;
 
         Swal.fire('Deleted!', 'Task removed successfully', 'success');
@@ -154,7 +169,7 @@ export class TaskListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Refresh
+  // REFRESH
   refresh() {
     this.loadTasks();
   }
