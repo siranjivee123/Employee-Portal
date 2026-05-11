@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
   templateUrl: './projects.html',
   styleUrls: ['./projects.css']
 })
-export class ProjectsComponent implements OnInit, AfterViewInit {
+export class ProjectsComponent implements OnInit {
 
   displayedColumns: string[] = [
     'sno',
@@ -36,9 +36,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
   projects: any[] = [];
 
-  dataSource = new MatTableDataSource<any>([]);
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+dataSource = new MatTableDataSource<any>([]);
+   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   searchText = '';
   selectedCategory = '';
@@ -55,17 +54,23 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.loadProjects();
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
-
+ 
 // LOAD DATA:
-  loadProjects() {
-    const data = JSON.parse(localStorage.getItem('projects') || '[]');
+ loadProjects() {
+  const data = JSON.parse(localStorage.getItem('projects') || '[]');
 
-    this.projects = data;
-    this.applyFilter();
-  }
+  console.log('Loaded Projects:', data);
+
+  this.projects = data;
+
+  this.dataSource = new MatTableDataSource(this.projects);
+
+  setTimeout(() => {
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+  });
+}
 
  //  FILTER & SORT
   applyFilter() {
@@ -120,8 +125,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
   // APPLY DATA + PAGINATION
-    this.dataSource = new MatTableDataSource(result);
-    this.dataSource.paginator = this.paginator;
+    this.dataSource.data = result;
   }
 
   //  VIEW
@@ -138,7 +142,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   // EDIT
   editProject(p: any) {
     this.router.navigate(['/add-project'], 
-      { queryParams: { id: p.id } });
+      { queryParams: { id: p.id || p.id } });
   }
 
   //  DELETE
@@ -153,7 +157,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }).then(result => {
       if (result.isConfirmed) {
 
-        const updated = this.projects.filter(p => p.id !== id);
+        const updated = this.projects.filter(p => (p.id || p.id) !== id);
         localStorage.setItem('projects', JSON.stringify(updated));
 
         this.loadProjects();
