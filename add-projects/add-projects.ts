@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
 // Material Imports
@@ -17,6 +18,7 @@ import { MatCardModule } from '@angular/material/card';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    HttpClientModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -37,7 +39,8 @@ export class AddProjectComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -45,73 +48,89 @@ export class AddProjectComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required],
       category: ['', Validators.required],
-      manager: [[], Validators.required],
-      employees: [[], Validators.required],
+      manager: [[], Validators.required],     
+      employees: [[], Validators.required],   
       status: ['', Validators.required],
-      
     });
 
-    // Check edit mode
     this.editId = this.route.snapshot.queryParamMap.get('id');
 
     if (this.editId) {
-      const projects = JSON.parse(localStorage.getItem('projects') || '[]');
-      const project = projects.find((p: any) => p.id === this.editId);
-      if (project) {
-        this.projectForm.patchValue(project);
-      }
+      this.getProjectById(this.editId);
     }
   }
 
+  // GET PROJECT
+  getProjectById(id: string) {
+    this.http.get<any>(`http://localhost:5000/api/projects/${id}`)
+      .subscribe({
+        next: (res) => {
+          this.projectForm.patchValue({
+            name: res.name,
+            description: res.description,
+            category: res.category,
+            manager: res.manager || [],
+            employees: res.employees || [],
+            status: res.status
+          });
+        },
+        error: () => {
+          Swal.fire('Error', 'Failed to load project', 'error');
+        }
+      });
+  }
+
+  //  SUBMIT 
   onSubmit() {
     if (this.projectForm.invalid) {
       Swal.fire('Error', 'Please fill all required fields', 'error');
       return;
     }
 
-    let projects = JSON.parse(localStorage.getItem('projects') || '[]');
+    const data = this.projectForm.value; 
 
+    //  UPDATE
     if (this.editId) {
-// Update project
-      projects = projects.map((p: any) =>
-        p.id === this.editId
-          ? { 
-            ...p,
-            ...this.projectForm.value,
-             date: p.date || new Date().toISOString()
-          }
-          : p
-      );
-    } else {
-// Add new project
-      const newProject = {
-        ...this.projectForm.value,
-        id: Math.random().toString(36).substring(2, 10),
-        date: new Date().toISOString()
-
-      };
-      projects.unshift(newProject);
+      this.http.put(`http://localhost:5000/api/projects/update/${this.editId}`, data)
+        .subscribe({
+          next: () => this.showSuccess('Project Updated!'),
+          error: () => this.showError()
+        });
+    } 
+    //  ADD
+    else {
+      this.http.post(`http://localhost:5000/api/projects/add`, data)
+        .subscribe({
+          next: () => this.showSuccess('Project Added!'),
+          error: () => this.showError()
+        });
     }
+  }
 
-    localStorage.setItem('projects', JSON.stringify(projects));
-
- // Success popup
+  //  SUCCESS
+  showSuccess(message: string) {
     Swal.fire({
-         icon: 'success',
-         title: 'Projects Added!',
-         text: 'Saved successfully',
-         timer: 1500,
-         showConfirmButton: false
-       }).then(() => {
-         this.router.navigate(['/dashboard'], {
-           queryParams: { view: 'projects' }
-         });
-       });
-     }
-  // BACK:
-     goBack() {
-       this.router.navigate(['/dashboard'], {
-         queryParams: { view: 'projects' }
-       });
-     }
-   }
+      icon: 'success',
+      title: message,
+      text: 'Saved successfully',
+      timer: 1500,
+      showConfirmButton: false
+    }).then(() => {
+      this.router.navigate(['/dashboard'], {
+        queryParams: { view: 'projects' }
+      });
+    });
+  }
+
+  //  ERROR
+  showError() {
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
+
+  // BACK
+  goBack() {
+    this.router.navigate(['/dashboard'], {
+      queryParams: { view: 'projects' }
+    });
+  }
+}
