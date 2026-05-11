@@ -1,117 +1,169 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
-import { ActivatedRoute } from '@angular/router';
 
-// Angular Material
+// Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-add-task',
   standalone: true,
+  templateUrl: './add-task.component.html',
+  styleUrls: ['./add-task.component.css'],
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    HttpClientModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
-    MatCardModule
-  ],
-  templateUrl: './add-task.component.html',
-  styleUrls: ['./add-task.component.css']
+    MatSelectModule,
+    MatCardModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+  ]
 })
 export class AddTaskComponent implements OnInit {
 
   taskForm!: FormGroup;
-  editId: any = null;
-  projectList: string[] = [];
-  assignedByList: string[] = ['Manager 1', 'Manager 2', 'Admin'];
+  editId: string | null = null;
 
+  projectList: any[] = [];
+assignedByList: any[] = [];
   constructor(
-     private fb: FormBuilder,
-     public router: Router,
-     private route: ActivatedRoute) {}
+    private fb: FormBuilder,
+    public router: Router,
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
+
+    // FORM
     this.taskForm = this.fb.group({
       ticket: ['', Validators.required],
       description: ['', Validators.required],
       project: ['', Validators.required],
       shift: ['', Validators.required],
       assignedBy: ['', Validators.required],
-      effort: ['', Validators.required],
-      date: ['', Validators.required]
+      effort: ['', Validators.required]
     });
 
+    // LOAD PROJECTS FROM API
     this.loadProjects();
-  
-  // CHECK EDIT MODE
-  this.route.queryParams.subscribe(params => {
-    if (params['id']) {
-      this.editId = params['id'];
-      this.loadTaskById(this.editId);
+    this.loadEmployees();   
+
+    // EDIT MODE
+    this.editId = this.route.snapshot.queryParamMap.get('id');
+
+    if (this.editId) {
+      this.getTaskById(this.editId);
     }
-  });
+  }
+loadEmployees() {
+  this.http.get<any>('http://localhost:5000/api/employee/all')
+    .subscribe({
+      next: (res) => {
+        this.assignedByList = res.employees || res || [];
+          
+        
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load employees', 'error');
+      }
+    });
 }
-  // Load Projects
+  //  GET PROJECT LIST 
   loadProjects() {
-    const data = JSON.parse(localStorage.getItem('projects') || '[]');
-    this.projectList = data.map((p: any) => p.name);
+    this.http.get<any>('http://localhost:5000/api/projects/all')
+      .subscribe({
+        next: (res) => {
+          this.projectList = res;
+        },
+        error: () => {
+          Swal.fire('Error', 'Failed to load projects', 'error');
+        }
+      });
   }
 
-  // Load Task from Edit
-  loadTaskById(id: any) {
-  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-  const task = tasks.find((t: any) => t.id == id);
-
-  if (task) {
-    this.taskForm.patchValue(task);
-  }
+  // GET TASK BY ID
+  getTaskById(id: string) {
+  this.http.get<any>(`http://localhost:5000/api/tasks/${id}`)
+    .subscribe({
+      next: (res) => {
+        this.taskForm.patchValue({
+          ticket: res.ticket,
+          description: res.description,
+          project: res.project?._id || res.project,
+          shift: res.shift,
+          assignedBy: res.assignedBy?._id || res.assignedBy,
+          effort: res.effort
+        });
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load task', 'error');
+      }
+    });
 }
-  // Submit Task
-  onSubmit() {
+
+  //  SUBMIT
+ onSubmit() {
+
   if (this.taskForm.invalid) {
-    this.taskForm.markAllAsTouched();
+    Swal.fire('Error', 'Please fill all required fields', 'error');
     return;
   }
 
-  let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  const data = this.taskForm.value; 
 
+  // UPDATE
   if (this.editId) {
-// UPDATE EXISTING
-    tasks = tasks.map((t: any) => {
-      if (t.id == this.editId) {
-        return { ...t, ...this.taskForm.value };
-      }
-      return t;
+    this.http.put(`http://localhost:5000/api/tasks/update/${this.editId}`, data)
+      .subscribe({
+        next: () => this.showSuccess('Task Updated!'),
+        error: () => this.showError()
+      });
+  } 
+  // ADD
+  else {
+    this.http.post(`http://localhost:5000/api/tasks/add`, data)
+      .subscribe({
+        next: () => this.showSuccess('Task Added!'),
+        error: () => this.showError()
+      });
+  }
+}
+
+  // SUCCESS
+  showSuccess(message: string) {
+    Swal.fire({
+      icon: 'success',
+      title: message,
+      text: 'Saved successfully',
+      timer: 1500,
+      showConfirmButton: false
+    }).then(() => {
+      this.router.navigate(['/dashboard'], {
+        queryParams: { view: 'tasks' }
+      });
     });
-
-    Swal.fire('Updated!', 'Task updated successfully', 'success');
-
-  } else {
-    // ADD NEW
-    tasks.push({
-      id: Date.now(),
-      ...this.taskForm.value
-    });
-
-    Swal.fire('Success', 'Task Added Successfully!', 'success');
   }
 
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  // ERROR
+  showError() {
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
 
-  this.router.navigate(['/dashboard'], {
-    queryParams: { view: 'tasks' }
-  });
-}
-  // Cancel Button
+  // BACK
   goBack() {
     this.router.navigate(['/dashboard'], {
       queryParams: { view: 'tasks' }
