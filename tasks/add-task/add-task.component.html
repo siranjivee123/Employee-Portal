@@ -28,12 +28,10 @@
         <mat-label>Project</mat-label>
         <mat-select formControlName="project">
 
-          <mat-option value=""> ---Select Project--- </mat-option>
-           <mat-option value="AM">Project 1</mat-option>
-          <mat-option value="PM">Project 2</mat-option>
-
-          <mat-option *ngFor="let p of projectList" [value]="p">
-            {{ p}}
+          <mat-option value=""> Select Project </mat-option>
+          
+          <mat-option *ngFor="let p of projectList" [value]="p._id">
+            {{ p.name}}
           </mat-option>
 
         </mat-select>
@@ -57,19 +55,22 @@
       </mat-form-field>
 
    <!-- Assigned -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Assigned By</mat-label>
-        <mat-select formControlName="assignedBy">
-          <mat-option *ngFor="let a of assignedByList" [value]="a">
-            {{ a }}
-          </mat-option>
-        </mat-select>
+     <mat-form-field appearance="outline" class="full-width">
+  <mat-label>Assigned By</mat-label>
 
-        <mat-error *ngIf="taskForm.get('assignedBy')?.touched && taskForm.get('assignedBy')?.invalid">
-          Please select Assigned person
-        </mat-error>
-      </mat-form-field>
+  <mat-select formControlName="assignedBy">
 
+    <mat-option *ngFor="let emp of assignedByList" [value]="emp._id">
+      {{ emp.name }}
+    </mat-option>
+
+  </mat-select>
+
+  <mat-error *ngIf="taskForm.get('assignedBy')?.touched && taskForm.get('assignedBy')?.invalid">
+    Please select Assigned person
+  </mat-error>
+
+</mat-form-field>
   <!-- Effort -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Effort (Hours)</mat-label>
