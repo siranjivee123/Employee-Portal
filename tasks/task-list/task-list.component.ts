@@ -101,12 +101,12 @@ export class TaskListComponent implements OnInit, AfterViewInit {
       );
     }
 
-    // DEFAULT SORT (LATEST FIRST)
+    // DEFAULT SORT 
     data.sort((a: any, b: any) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    // OPTIONAL CUSTOM SORT
+    //   SORT
     switch (this.sortOption) {
       case 'ticket-asc':
         data.sort((a, b) => a.ticket.localeCompare(b.ticket));
