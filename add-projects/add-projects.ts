@@ -33,8 +33,8 @@ export class AddProjectComponent implements OnInit {
   projectForm!: FormGroup;
   editId: string | null = null;
 
-  managersList = ['Manager1', 'Manager2'];
-  employeesList = ['Emp1', 'Emp2'];
+  managersList: any[] = [];
+  employeeList: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -48,10 +48,12 @@ export class AddProjectComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required],
       category: ['', Validators.required],
-      manager: [[], Validators.required],     
-      employees: [[], Validators.required],   
+      manager: [[], Validators.required],
+      employees: [[], Validators.required],
       status: ['', Validators.required],
     });
+
+    this.loadEmployees();
 
     this.editId = this.route.snapshot.queryParamMap.get('id');
 
@@ -60,17 +62,39 @@ export class AddProjectComponent implements OnInit {
     }
   }
 
-  // GET PROJECT
+  //  LOAD EMPLOYEES
+  loadEmployees() {
+    this.http.get<any>('http://localhost:5000/api/employee/all')
+      .subscribe({
+        next: (res: any) => {
+                  console.log('FULL RESPONSE:', res);
+
+
+          const all = res.employees || res || [];
+                  console.log('ALL EMPLOYEES:', all);
+
+          this.managersList = all;
+          this.employeeList = all;
+           console.log('MANAGERS:', this.managersList);
+        console.log('EMPLOYEES:', this.employeeList);
+        },
+        error: () => {
+          Swal.fire('Error', 'Failed to load employees', 'error');
+        }
+      });
+  }
+
+  //  GET PROJECT
   getProjectById(id: string) {
     this.http.get<any>(`http://localhost:5000/api/projects/${id}`)
       .subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.projectForm.patchValue({
             name: res.name,
             description: res.description,
             category: res.category,
-            manager: res.manager || [],
-            employees: res.employees || [],
+            manager: res.manager?.map((m: any) => m._id || m) || [],
+            employees: res.employees?.map((e: any) => e._id || e) || [],
             status: res.status
           });
         },
@@ -80,25 +104,22 @@ export class AddProjectComponent implements OnInit {
       });
   }
 
-  //  SUBMIT 
+  //  SUBMIT
   onSubmit() {
     if (this.projectForm.invalid) {
       Swal.fire('Error', 'Please fill all required fields', 'error');
       return;
     }
 
-    const data = this.projectForm.value; 
+    const data = this.projectForm.value;
 
-    //  UPDATE
     if (this.editId) {
       this.http.put(`http://localhost:5000/api/projects/update/${this.editId}`, data)
         .subscribe({
           next: () => this.showSuccess('Project Updated!'),
           error: () => this.showError()
         });
-    } 
-    //  ADD
-    else {
+    } else {
       this.http.post(`http://localhost:5000/api/projects/add`, data)
         .subscribe({
           next: () => this.showSuccess('Project Added!'),
@@ -127,7 +148,7 @@ export class AddProjectComponent implements OnInit {
     Swal.fire('Error', 'Something went wrong', 'error');
   }
 
-  // BACK
+  //  BACK
   goBack() {
     this.router.navigate(['/dashboard'], {
       queryParams: { view: 'projects' }
