@@ -22,7 +22,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class EmployeeListComponent implements OnInit, AfterViewInit {
 
-  // ---------------- TABLE COLUMNS ----------------
+  //  TABLE COLUMNS 
   displayedColumns: string[] = [
     'sno',
     'id',
@@ -39,16 +39,16 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // ---------------- FILTERS ----------------
+  // FILTERS 
   searchText = '';
   selectedProject = '';
   selectedDate = '';
   sortOption = '';
 
-  // ---------------- ROLE ----------------
+  //  ROLE
   role: string = '';
 
-  // ---------------- POPUP ----------------
+  //  POPUP 
   showPopup = false;
   selectedEmployee: any = null;
 
@@ -59,30 +59,31 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     this.getRoleFromToken();
   }
 
-  // ================= INIT =================
-  ngOnInit() {
+  //  INIT 
+  ngOnInit(): void {
     this.loadEmployees();
   }
 
   ngAfterViewInit() {
+     if (this.paginator) {
     this.dataSource.paginator = this.paginator;
   }
+}
 
-  // ================= ROLE =================
+  // ROLE 
   getRoleFromToken() {
-    const token = localStorage.getItem('token');
+      this.role = (localStorage.getItem('role') || '').toLowerCase();
 
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      this.role = payload.role;
-    }
+    
   }
 
-  // ================= LOAD DATA =================
+  // LOAD DATA 
   loadEmployees() {
-    this.http.get<any[]>('http://localhost:5000/api/employees')
+    this.http.get<any[]>('http://localhost:5000/api/employee/all')
       .subscribe({
         next: (res) => {
+          console.log('API DATA:', res);
+
           this.employees = res;
           this.dataSource.data = res;
         },
@@ -92,7 +93,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       });
   }
 
-  // ================= FILTER + SORT =================
+  // FILTER + SORT 
   applyFilter() {
 
     const keyword = this.searchText.trim().toLowerCase();
@@ -108,39 +109,52 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
         name.includes(keyword) ||
         email.includes(keyword);
 
+      //  SAFE PROJECT HANDLING
+      const projects = Array.isArray(emp.projects)
+        ? emp.projects
+        : emp.projects
+          ? [emp.projects]
+          : [];
+
       const matchProject =
         !projectKey ||
-        (emp.projects || []).some((p: string) =>
+        projects.some((p: string) =>
           p.toLowerCase().includes(projectKey)
         );
 
+      //  DATE FIX 
       const matchDate =
         !this.selectedDate ||
-        new Date(emp.date).toISOString().split('T')[0] === this.selectedDate;
+        new Date(emp.createdAt).toISOString().split('T')[0] === this.selectedDate;
 
       return matchSearch && matchProject && matchDate;
     });
 
-    // SORTING
+    //  SORT 
     switch (this.sortOption) {
+
       case 'name-asc':
-        result.sort((a, b) => a.name.localeCompare(b.name));
+        result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         break;
 
       case 'name-desc':
-        result.sort((a, b) => b.name.localeCompare(a.name));
+        result.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
         break;
 
       case 'project-asc':
-        result.sort((a, b) =>
-          (a.projects?.[0] || '').localeCompare(b.projects?.[0] || '')
-        );
+        result.sort((a, b) => {
+          const aProj = Array.isArray(a.projects) ? a.projects[0] : a.projects || '';
+          const bProj = Array.isArray(b.projects) ? b.projects[0] : b.projects || '';
+          return aProj.localeCompare(bProj);
+        });
         break;
 
       case 'project-desc':
-        result.sort((a, b) =>
-          (b.projects?.[0] || '').localeCompare(a.projects?.[0] || '')
-        );
+        result.sort((a, b) => {
+          const aProj = Array.isArray(a.projects) ? a.projects[0] : a.projects || '';
+          const bProj = Array.isArray(b.projects) ? b.projects[0] : b.projects || '';
+          return bProj.localeCompare(aProj);
+        });
         break;
     }
 
@@ -151,7 +165,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ================= VIEW =================
+  //  VIEW 
   viewEmployee(emp: any) {
     this.selectedEmployee = emp;
     this.showPopup = true;
@@ -161,16 +175,16 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     this.showPopup = false;
   }
 
-  // ================= EDIT (ADMIN ONLY) =================
+  //  EDIT 
   editEmployee(emp: any) {
     if (this.role !== 'admin') return;
 
     this.router.navigate(['/add-employee'], {
-      queryParams: { id: emp.id }
+      queryParams: { id: emp._id } 
     });
   }
 
-  // ================= DELETE (ADMIN ONLY) =================
+  //  DELETE 
   deleteEmployee(id: string) {
 
     if (this.role !== 'admin') return;
@@ -186,7 +200,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
 
       if (result.isConfirmed) {
 
-        this.http.delete(`http://localhost:5000/api/employees/${id}`)
+        this.http.delete(`http://localhost:5000/api/employee/${id}`) 
           .subscribe(() => {
 
             this.loadEmployees();
@@ -201,7 +215,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ================= REFRESH =================
+  // REFRESH 
   refresh() {
     this.loadEmployees();
   }
