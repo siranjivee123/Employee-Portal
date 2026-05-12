@@ -82,7 +82,7 @@
  <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef> Date </th>
       <td mat-cell *matCellDef="let emp">
-    {{ emp.date | date:'dd/MM/yyyy, hh:mm:ss a ' }}
+    {{ emp.createdAt | date:'dd/MM/yyyy, hh:mm:ss a ' }}
          </td>
     </ng-container>
 
