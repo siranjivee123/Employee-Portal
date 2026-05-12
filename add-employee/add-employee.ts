@@ -190,7 +190,7 @@ console.log("FILE:", this.selectedFile);
       next: (res: any) => {
         this.isSubmitting = false;
 
-        console.log("SUCCESS:", res); // 🔥 IMPORTANT DEBUG
+        console.log("SUCCESS:", res); 
 
         this.employeeId = res.employee?._id || res.data?._id;
         this.savedEmployee = res.employee || res.data;
