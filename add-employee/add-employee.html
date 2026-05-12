@@ -5,14 +5,15 @@
 
     <mat-horizontal-stepper linear #stepper>
 
-      <!-- ================= STEP 1 ================= -->
+      <!--  STEP 1-->
       <mat-step [stepControl]="basicForm">
         <form [formGroup]="basicForm">
 
           <!-- NAME -->
           <div class="field">
             <input placeholder="Enter Name" formControlName="name">
-            <div class="error" *ngIf="basicForm.get('name')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('name')?.touched && basicForm.get('name')?.invalid">
               Please enter name
             </div>
           </div>
@@ -20,7 +21,8 @@
           <!-- EMAIL -->
           <div class="field">
             <input placeholder="Enter Email" formControlName="email">
-            <div class="error" *ngIf="basicForm.get('email')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('email')?.touched && basicForm.get('email')?.invalid">
               Please enter valid email
             </div>
           </div>
@@ -28,7 +30,8 @@
           <!-- PHONE -->
           <div class="field">
             <input placeholder="Enter Phone" formControlName="phone">
-            <div class="error" *ngIf="basicForm.get('phone')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('phone')?.touched && basicForm.get('phone')?.invalid">
               Please enter valid phone number
             </div>
           </div>
@@ -36,7 +39,8 @@
           <!-- ADDRESS -->
           <div class="field">
             <input placeholder="Enter Address" formControlName="address">
-            <div class="error" *ngIf="basicForm.get('address')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('address')?.touched && basicForm.get('address')?.invalid">
               Please enter address
             </div>
           </div>
@@ -49,7 +53,8 @@
                 {{ s.name }}
               </option>
             </select>
-            <div class="error" *ngIf="basicForm.get('state')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('state')?.touched && basicForm.get('state')?.invalid">
               Please select state
             </div>
           </div>
@@ -62,7 +67,8 @@
                 {{ c }}
               </option>
             </select>
-            <div class="error" *ngIf="basicForm.get('city')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('city')?.touched && basicForm.get('city')?.invalid">
               Please select city
             </div>
           </div>
@@ -70,65 +76,59 @@
           <!-- ZIP -->
           <div class="field">
             <input placeholder="Enter Zip Code" formControlName="zip">
-            <div class="error" *ngIf="basicForm.get('zip')?.invalid">
+            <div class="error"
+              *ngIf="basicForm.get('zip')?.touched && basicForm.get('zip')?.invalid">
               Please enter zip code
             </div>
           </div>
-<!-- PROFILE IMAGE UPLOAD -->
-<div class="field">
 
-  <label class="label">Profile Image</label>
+          <!-- PROFILE IMAGE -->
+          <div class="field">
+            <label class="label">Profile Image</label>
 
-  <div class="upload-box">
+            <div class="upload-box">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileChange($event)"
+                hidden
+                #fileInput
+              >
 
-    <!-- Hidden file input -->
-    <input
-      type="file"
-      accept="image/*"
-      (change)="onFileChange($event)"
-      hidden
-      #fileInput
-    >
+              <button mat-stroked-button type="button"
+                (click)="fileInput.click()">
+                Choose Image
+              </button>
 
-    <!-- Upload button -->
-    <button mat-stroked-button type="button" (click)="fileInput.click()">
-      Choose Image
-    </button>
+              <div *ngIf="selectedFile" class="file-name">
+                Selected: {{ selectedFile.name }}
+              </div>
+            </div>
 
-    <!-- File name display -->
-    <div *ngIf="selectedFile" style="margin-top:5px;">
-      Selected: {{ selectedFile.name }}
-    </div>
+            <!-- Preview -->
+            <div *ngIf="imagePreview" class="preview">
+              <img
+                [src]="imagePreview"
+                alt="Preview"
+                class="preview-img"
+              >
+            </div>
+          </div>
 
-  </div>
-
-  <!-- Image Preview -->
-  <div *ngIf="imagePreview" style="margin-top:10px;">
-    <img
-      [src]="imagePreview"
-      alt="Preview"
-      style="
-        width:120px;
-        height:120px;
-        object-fit:cover;
-        border-radius:10px;
-        border:1px solid #ccc;
-      "
-    >
-  </div>
-
-</div>
           <!-- NEXT -->
           <div class="btn-group">
             <button mat-raised-button color="primary"
+              type="button"
               (click)="goNext(stepper)">
               Next
             </button>
           </div>
+
         </form>
       </mat-step>
+      
 
-      <!-- ================= STEP 2 ================= -->
+      <!-- STEP 2  -->
       <mat-step [stepControl]="techForm">
         <form [formGroup]="techForm">
 
@@ -140,7 +140,8 @@
                 {{ r }}
               </option>
             </select>
-            <div class="error" *ngIf="techForm.get('role')?.invalid">
+            <div class="error"
+              *ngIf="techForm.get('role')?.touched && techForm.get('role')?.invalid">
               Please select role
             </div>
           </div>
@@ -152,64 +153,58 @@
               <option value="AM">AM</option>
               <option value="PM">PM</option>
             </select>
-            <div class="error" *ngIf="techForm.get('shift')?.invalid">
+            <div class="error"
+              *ngIf="techForm.get('shift')?.touched && techForm.get('shift')?.invalid">
               Please select shift
             </div>
           </div>
 
           <!-- PROJECTS -->
           <div class="field">
-
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Projects</mat-label>
-
-    <mat-select formControlName="projects" multiple>
-
-      <mat-option *ngFor="let p of projectsList" [value]="p">
-        {{ p }}
-      </mat-option>
-
-    </mat-select>
-
-    <mat-error *ngIf="techForm.get('projects')?.invalid">
-      Please select projects
-    </mat-error>
-
-  </mat-form-field>
-
-</div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Projects</mat-label>
+              <mat-select formControlName="projects" multiple>
+                <mat-option *ngFor="let p of projectsList" [value]="p">
+                  {{ p}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="techForm.get('projects')?.invalid">
+                Please select projects
+              </mat-error>
+            </mat-form-field>
+          </div>
 
           <!-- MANAGERS -->
-  <div class="field">
-
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Managers</mat-label>
-
-    <mat-select formControlName="managers" multiple>
-
-      <mat-option *ngFor="let m of managersList" [value]="m">
-        {{ m }}
-      </mat-option>
-
-    </mat-select>
-
-    <mat-error *ngIf="techForm.get('managers')?.invalid">
-      Please select managers
-    </mat-error>
-
-  </mat-form-field>
-
-</div>
+          <div class="field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Managers</mat-label>
+              <mat-select formControlName="managers" multiple>
+                <mat-option *ngFor="let m of managersList" [value]="m">
+                  {{ m }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="techForm.get('managers')?.invalid">
+                Please select managers
+              </mat-error>
+            </mat-form-field>
+          </div>
 
           <!-- BUTTONS -->
           <div class="btn-group">
-            <button mat-button matStepperPrevious>Back</button>
+
+            <button mat-button matStepperPrevious type="button">
+              Back
+            </button>
+
+           
 
             <button mat-raised-button color="primary"
+              type="button"
               (click)="onSubmit()"
               [disabled]="techForm.invalid">
               Submit
             </button>
+
           </div>
 
         </form>
@@ -219,3 +214,5 @@
 
   </div>
 </div>
+
+
