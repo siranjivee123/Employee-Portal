@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../services/auth.service';
 // Angular Material
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,11 +15,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule,          
-    ReactiveFormsModule,   
+    CommonModule,
+    ReactiveFormsModule,
     RouterModule,
 
-    //  Material
     MatInputModule,
     MatButtonModule,
     MatCardModule,
@@ -26,15 +26,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatFormFieldModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']   
-
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
 
   loginForm: FormGroup;
   hidePassword = true;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private http: HttpClient,
+     private authService: AuthService 
+  ) {
 
     this.loginForm = this.fb.group({
       userId: ['', [Validators.required, Validators.minLength(4)]],
@@ -43,18 +47,37 @@ export class LoginComponent {
   }
 
   onSubmit() {
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
     const { userId, password } = this.loginForm.value;
-    console.log(this.loginForm.value);
-    if (userId === 'admin' && password === '123456') {
-      localStorage.setItem('isLoggedIn', 'true');
-      this.router.navigate(['/dashboard']);
-    } else {
-      alert('Invalid Employee ID or Password');
-    }
+
+    //   BACKEND LOGIN (JWT)
+    this.http.post<any>('http://localhost:5000/api/auth/login', {
+      userId,
+      password
+    }).subscribe({
+      next: (res) => {
+        console.log("LOGIN RESPONSE:", res); 
+
+         if (!res.token) {
+        alert("Login failed: No token received");
+        return;
+      }
+
+        // STORE JWT TOKEN
+       this.authService.loginSuccess(res.token, res.role);
+        // redirect
+        this.router.navigate(['/dashboard']);
+      },
+
+      error: () => {
+        console.error();
+        alert('Invalid Credentials');
+      }
+    });
   }
 }
